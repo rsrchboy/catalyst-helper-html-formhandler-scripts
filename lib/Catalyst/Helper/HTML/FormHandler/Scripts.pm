@@ -1,38 +1,93 @@
 package Catalyst::Helper::HTML::FormHandler::Scripts;
 
-# ABSTRACT: The great new Catalyst::Helper::HTML::FormHandler::Scripts!
+# ABSTRACT: Create a script/myapp_formhandler.pl to help with forms
 
-use Moose;
 use namespace::autoclean;
 use common::sense;
 
+use File::Spec;
 
-__PACKAGE__->meta->make_immutable;
+sub mk_stuff {
+    my ($self, $helper, $args) = @_;
+
+    #my $app = lc $helper->{app};
+
+    my $base = $helper->{base};
+    my $app  = lc $helper->{app};
+
+    $app =~ s/::/_/g;
+
+    my $script = File::Spec->catfile($base, 'script', $app.'_hfh.pl');
+    $helper->render_file('hfh', $script);
+    chmod 0755, $script;
+}
+
 
 1;
 
-__END__
-
 =head1 SYNOPSIS
+
+    ./script/myapp_create.pl HTML::FormHandler::Scripts
 
 =head1 DESCRIPTION
 
+This is a Catalyst helper module that builds a
+L<HTML::FormHandler> form for you, from your L<DBIx::Class> schema,
+using L<HTML::FormHandler::Model::DBIC>.
+
+VERY EARLY CODE: things may yet change, but shouldn't impact older versions
+(unless you regenerate the script).
+
 =head1 SEE ALSO
 
-L<Smart::Comments>, L<Test::NoSmartComments>
-
-=head1 BUGS
-
-All complex software has bugs lurking in it, and this module is no exception.
-
-Please report any bugs to
-"bug-Catalyst::Helper::HTML::FormHandler::Scripts@rt.cpan.org",
-or through the web interface at <http://rt.cpan.org>.
-
-Bugs, feature requests and pull requests through GitHub are most welcome; our
-page and repo (same URI):
-
-    https://github.com/RsrchBoy/catalyst::helper::html::formhandler::scripts
+L<DBIx::Class>, L<HTML::FormHandler>, L<HTML::FormHandler::Model::DBIC>.
 
 =cut
 
+__DATA__
+__hfh__
+#!/usr/bin/env perl
+
+use strict;
+use warnings;
+
+use FindBin;
+use lib "$FindBin::Bin/../lib";
+
+use aliased 'HTML::FormHandler::Generator::DBIC' => 'Generator';
+use opts;
+use Class::MOP;
+use Config::JFDI;
+use Try::Tiny;
+
+opts
+    my $schema => { isa => 'Str', default  => 'DB::Schema' },
+    my $model  => { isa => 'Str', default  => 'Model::DB'  },
+    my $rs     => { isa => 'Str', required => 1            },
+    ;
+
+$schema = "[% app %]::$schema";
+
+Class::MOP::load_class($schema);
+try { Class::MOP::load_class($schema) }
+catch {
+
+    die "Cannot load $schema!\n\nError:$_";
+};
+
+my $connect_info = Config::JFDI
+    ->new(name => '[% app %]')
+    ->get
+    ->{$model}
+    ->{'connect_info'}
+    ;
+
+my $gen = Generator->new(
+    db_dsn      => $connect_info->{dsn},
+    schema_name => $schema,
+    rs_name     => $rs,
+);
+
+print $gen->generate_form;
+
+1;
