@@ -1,6 +1,6 @@
 package Catalyst::Helper::HTML::FormHandler::Scripts;
 
-# ABSTRACT: Create a script/myapp_formhandler.pl to help with forms
+# ABSTRACT: Create a script/myapp_hfh.pl to help with forms
 
 use namespace::autoclean;
 use common::sense;
@@ -9,8 +9,6 @@ use File::Spec;
 
 sub mk_stuff {
     my ($self, $helper, $args) = @_;
-
-    #my $app = lc $helper->{app};
 
     my $base = $helper->{base};
     my $app  = lc $helper->{app};
@@ -38,6 +36,11 @@ using L<HTML::FormHandler::Model::DBIC>.
 VERY EARLY CODE: things may yet change, but shouldn't impact older versions
 (unless you regenerate the script).
 
+=head1 DEPENDENCIES
+
+The generated script depends on: L<HTML::FormHandler::Generator::DBIC>,
+L<Config::JFDI>, L<opts>, L<aliased>.
+
 =head1 SEE ALSO
 
 L<DBIx::Class>, L<HTML::FormHandler>, L<HTML::FormHandler::Model::DBIC>.
@@ -58,7 +61,6 @@ use aliased 'HTML::FormHandler::Generator::DBIC' => 'Generator';
 use opts;
 use Class::MOP;
 use Config::JFDI;
-use Try::Tiny;
 
 opts
     my $schema => { isa => 'Str', default  => 'DB::Schema' },
@@ -68,12 +70,8 @@ opts
 
 $schema = "[% app %]::$schema";
 
+# if we die, we die
 Class::MOP::load_class($schema);
-try { Class::MOP::load_class($schema) }
-catch {
-
-    die "Cannot load $schema!\n\nError:$_";
-};
 
 my $connect_info = Config::JFDI
     ->new(name => '[% app %]')
