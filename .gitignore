@@ -15,3 +15,6 @@ META.yml
 *.bak
 MYMETA.*
 .build
+.build/
+Catalyst-Helper-HTML-FormHandler-Scripts-*
+releases/
