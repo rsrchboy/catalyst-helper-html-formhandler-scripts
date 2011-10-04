@@ -1,0 +1,44 @@
+=pod
+
+=head1 NAME
+
+Catalyst::Helper::HTML::FormHandler::Scripts - Create a script/myapp_hfh.pl to help with forms
+
+=head1 VERSION
+
+version 0.001
+
+=head1 SYNOPSIS
+
+    ./script/myapp_create.pl HTML::FormHandler::Scripts
+
+=head1 DESCRIPTION
+
+This is a Catalyst helper module that builds a
+L<HTML::FormHandler> form for you, from your L<DBIx::Class> schema,
+using L<HTML::FormHandler::Model::DBIC>.
+
+VERY EARLY CODE: things may yet change, but shouldn't impact older versions
+(unless you regenerate the script).
+
+=head1 DEPENDENCIES
+
+The generated script depends on: L<HTML::FormHandler::Generator::DBIC>,
+L<Config::JFDI>, L<opts>, L<aliased>.
+
+=head1 SEE ALSO
+
+L<DBIx::Class>, L<HTML::FormHandler>, L<HTML::FormHandler::Model::DBIC>.
+
+=head1 AUTHOR
+
+Chris Weyl <cweyl@alumni.drew.edu>
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is Copyright (c) 2011 by Chris Weyl.
+
+This is free software, licensed under:
+
+  The GNU Lesser General Public License, Version 2.1, February 1999
+
